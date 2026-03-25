@@ -1,6 +1,7 @@
 import pytest
 
 
+@pytest.mark.api
 class TestDeposit:
     @pytest.mark.parametrize(
         'deposit_request',
