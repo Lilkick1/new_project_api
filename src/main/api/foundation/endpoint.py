@@ -3,10 +3,14 @@ from enum import Enum
 from typing import Optional, Type
 from src.main.api.models.base_model import BaseModel
 from src.main.api.models.create_account_response import CreateAccountResponse
+from src.main.api.models.create_credit_account_request import CreateCreditUserRequest
+from src.main.api.models.create_credit_account_response import CreateCreditUserResponse
 from src.main.api.models.create_user_request import CreateUserRequest
 from src.main.api.models.create_user_response import CreateUserResponse
 from src.main.api.models.deposit_request import DepositRequest
 from src.main.api.models.deposit_response import DepositResponse
+from src.main.api.models.deposit_transfer_request import DepositTransferRequest
+from src.main.api.models.deposit_transfer_response import DepositTransferResponse
 from src.main.api.models.login_user_request import LoginUserRequest
 from src.main.api.models.login_user_response import LoginUserResponse
 
@@ -43,8 +47,20 @@ class Endpoint(Enum):
         response_model=CreateAccountResponse
     )
 
+    CREATE_CREDIT_USER = EndPointConfiguration(
+        request_model=CreateCreditUserRequest,
+        url="/account/create",
+        response_model=CreateCreditUserResponse
+    )
+
     CREATE_DEPOSIT = EndPointConfiguration(
         request_model=DepositRequest,
         url='/account/deposit',
         response_model=DepositResponse
+    )
+
+    DEPOSIT_TRANSFER = EndPointConfiguration(
+        request_model=DepositTransferRequest,
+        url='/account/transfer',
+        response_model=DepositTransferResponse
     )
