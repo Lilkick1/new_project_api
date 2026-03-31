@@ -1,42 +1,40 @@
 import pytest
-from src.main.api.models.deposit_request import DepositRequest
-from src.main.api.models.deposit_transfer_request import DepositTransferRequest
+
+from src.main.api.models.deposit_response import DepositResponse
 
 
 @pytest.mark.api
-class TestDepositTransfer:
-    def test_deposit_transfer(self, api_manager, create_user_request):
-        # 1. Создаем два счета
-        account1 = api_manager.user_steps.create_account(create_user_request)
-        account2 = api_manager.user_steps.create_account(create_user_request)
+class TestTransfer:
 
-        # 2. Вносим депозит на первый счет
-        deposit_request = DepositRequest(
-            accountId=account1.id,
-            amount=1000.50
-        )
+    @pytest.mark.parametrize(
+        'transfer_request',
+        [
+            {'amount': 500},
+            {'amount': 1000},
+            {'amount': 2500.50}
+        ],
+        indirect=True
+    )
+    def test_transfer_between_accounts(self, api_manager, create_user_request, prepared_transfer, transfer_request):
 
-        api_manager.user_steps.deposit(
-            deposit_request=deposit_request,
-            username=create_user_request.username,
-            password=create_user_request.password
-        )
 
-        # 3. Создаем запрос на перевод
-        transfer_request = DepositTransferRequest(
-            fromAccountId=account1.id,
-            toAccountId=account2.id,
-            amount=500.00
-        )
+        transfer_response = api_manager.user_steps.deposit_transfer(create_user_request, transfer_request)
 
-        # 4. Выполняем перевод
-        response = api_manager.user_steps.deposit_transfer(
-            deposit_transfer_request=transfer_request,
-            username=create_user_request.username,
-            password=create_user_request.password
-        )
 
-        # 5. Проверки
-        assert response.fromAccountId == account1.id
-        assert response.toAccountId == account2.id
-        assert response.fromAccountIdBalance == 500.50  # 1000.50 - 500.00
+        assert transfer_response.fromAccountId == prepared_transfer.account1.id
+        assert transfer_response.toAccountId == prepared_transfer.account2.id
+        expected_balance = prepared_transfer.actual_balance_after_deposit - transfer_request.amount
+        assert transfer_response.fromAccountIdBalance == expected_balance
+
+    @pytest.mark.parametrize(
+        'transfer_request',
+        [
+            {'amount': 499},
+            {'amount': 10001}
+        ],
+        indirect=True
+    )
+    def test_bad_transfer_between_accounts(self, api_manager, create_user_request, prepared_transfer, transfer_request):
+
+        api_manager.user_steps.deposit_transfer_invalid(create_user_request, transfer_request)
+

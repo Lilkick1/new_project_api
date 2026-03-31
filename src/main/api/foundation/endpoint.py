@@ -3,10 +3,14 @@ from enum import Enum
 from typing import Optional, Type
 from src.main.api.models.base_model import BaseModel
 from src.main.api.models.create_account_response import CreateAccountResponse
-from src.main.api.models.create_credit_account_request import CreateCreditUserRequest
-from src.main.api.models.create_credit_account_response import CreateCreditUserResponse
+from src.main.api.models.create_credit_user_request import CreateCreditUserRequest
+from src.main.api.models.create_credit_user_response import CreateCreditUserResponse
 from src.main.api.models.create_user_request import CreateUserRequest
 from src.main.api.models.create_user_response import CreateUserResponse
+from src.main.api.models.credit_repay_request import CreditRepayRequest
+from src.main.api.models.credit_repay_response import CreditRepayResponse
+from src.main.api.models.credit_request import CreditRequest
+from src.main.api.models.credit_respose import CreditResponse
 from src.main.api.models.deposit_request import DepositRequest
 from src.main.api.models.deposit_response import DepositResponse
 from src.main.api.models.deposit_transfer_request import DepositTransferRequest
@@ -29,6 +33,12 @@ class Endpoint(Enum):
         response_model=CreateUserResponse
     )
 
+    ADMIN_CRATE_CREDIT_USER = EndPointConfiguration(
+        request_model=CreateCreditUserRequest,
+        url="/admin/create",
+        response_model=CreateCreditUserResponse
+    )
+
     ADMIN_DELETE_USER = EndPointConfiguration(
         request_model=None,
         url="/admin/users",
@@ -47,6 +57,7 @@ class Endpoint(Enum):
         response_model=CreateAccountResponse
     )
 
+
     CREATE_CREDIT_USER = EndPointConfiguration(
         request_model=CreateCreditUserRequest,
         url="/account/create",
@@ -59,8 +70,20 @@ class Endpoint(Enum):
         response_model=DepositResponse
     )
 
+    TAKE_CREDIT = EndPointConfiguration(
+        request_model=CreditRequest,
+        url='/credit/request',
+        response_model=CreditResponse
+    )
+
     DEPOSIT_TRANSFER = EndPointConfiguration(
         request_model=DepositTransferRequest,
         url='/account/transfer',
         response_model=DepositTransferResponse
+    )
+
+    CREDIT_REPAY = EndPointConfiguration(
+        request_model=CreditRepayRequest,
+        url='/credit/repay',
+        response_model=CreditRepayResponse
     )
