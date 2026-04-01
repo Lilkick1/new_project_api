@@ -70,11 +70,27 @@ class UserSteps(BaseSteps):
         ).post(credit_request)
         return response
 
+    def take_credit_invalid(self, create_credit_user_request: CreateCreditUserRequest, credit_request: CreditRequest):
+        response = CrudRequester(
+            RequestSpecs.auth_headers(username=create_credit_user_request.username,
+                                      password=create_credit_user_request.password),
+            endpoint=Endpoint.TAKE_CREDIT,
+            response_spec=ResponseSpecs.request_bad()
+        ).post(credit_request)
+        return response
+
     def credit_repay(self, create_credit_user_request: CreateCreditUserRequest, credit_repay_request: CreditRepayRequest):
         response = ValidateCrudRequester(
             RequestSpecs.auth_headers(username=create_credit_user_request.username, password=create_credit_user_request.password),
             endpoint=Endpoint.CREDIT_REPAY,
             response_spec=ResponseSpecs.request_ok()
+        ).post(credit_repay_request)
+        return response
+    def credit_repay_invalid(self, create_credit_user_request: CreateCreditUserRequest, credit_repay_request: CreditRepayRequest):
+        response = CrudRequester(
+            RequestSpecs.auth_headers(username=create_credit_user_request.username, password=create_credit_user_request.password),
+            endpoint=Endpoint.CREDIT_REPAY,
+            response_spec=ResponseSpecs.request_bad()
         ).post(credit_repay_request)
         return response
 

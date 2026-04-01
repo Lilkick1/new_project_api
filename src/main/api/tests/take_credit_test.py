@@ -25,3 +25,16 @@ class TestTakeCredit:
         assert credit_from_db.balance == -amount
         assert credit_from_db.amount == amount
 
+    @pytest.mark.parametrize('amount, termMonths', [
+        (4999.00, 12),
+        (15001.00, 36),
+    ])
+    def test_take_credit_invalid(self, db_session: Session, api_manager: ApiManager,
+                         create_credit_user_request: CreateCreditUserRequest, create_credit_account_user_id, amount,
+                         termMonths):
+        credit_request = CreditRequest(accountId=create_credit_account_user_id, amount=amount, termMonths=termMonths)
+        response = api_manager.user_steps.take_credit_invalid(create_credit_user_request, credit_request)
+
+        credit_from_db = Credit.get_credit_by_id(db_session, response.creditId)
+        assert credit_from_db.amount == amount
+        assert credit_from_db.balance == 0
