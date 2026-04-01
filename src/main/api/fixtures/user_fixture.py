@@ -90,7 +90,6 @@ def prepared_transfer(api_manager, create_user_request, create_two_accounts, tra
     # Возвращаем данные через Pydantic модель
     return PreparedTransferData(
         transfer_request=transfer_request,
-
         account1=account1,
         account2=account2,
         deposit_response=deposit_response,

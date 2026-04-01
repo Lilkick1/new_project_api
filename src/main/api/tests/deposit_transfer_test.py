@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 from src.main.api.classes.api_manager import ApiManager
 from src.main.api.db.crud.account_crud import AccountCrudDb as Account
 from src.main.api.db.crud.transaction_crud import TransactionCrudDb as Transaction
+from src.main.api.models.create_user_request import CreateUserRequest
+
 
 @pytest.mark.api
 class TestTransfer:
@@ -17,7 +19,7 @@ class TestTransfer:
         ],
         indirect=True
     )
-    def test_transfer_between_accounts(self, api_manager: ApiManager, bd_session: Session, create_user_request: CreateUserRequest, prepared_transfer, transfer_request):
+    def test_transfer_between_accounts(self, api_manager: ApiManager, db_session: Session, create_user_request: CreateUserRequest, prepared_transfer, transfer_request):
 
 
         transfer_response = api_manager.user_steps.deposit_transfer(create_user_request, transfer_request)
@@ -28,10 +30,11 @@ class TestTransfer:
         expected_balance = prepared_transfer.actual_balance_after_deposit - transfer_request.amount
         assert transfer_response.fromAccountIdBalance == expected_balance
 
-        transaction_from_db = Transaction.get_transaction_by_id(bd_session, transfer_response.id)
+        transaction_from_db = Transaction.get_last_transaction_by_account(db_session, prepared_transfer.account1.id, transaction_type="transfer")
         assert transaction_from_db.amount == transfer_request.amount
-        assert transaction_from_db.id == transfer_response.id
-        account_from_db = AccountCrudDb.get_account_by_id(api_manager, transfer_response.id)
+        assert transaction_from_db.from_account_id == prepared_transfer.account1.id
+        assert transaction_from_db.to_account_id == prepared_transfer.account2.id
+        account_from_db = Account.get_account_by_id(db_session, prepared_transfer.account2.id)
         assert account_from_db.balance == transfer_request.amount
 
     @pytest.mark.parametrize(
@@ -42,13 +45,10 @@ class TestTransfer:
         ],
         indirect=True
     )
-    def test_bad_transfer_between_accounts(self, api_manager: ApiManager, bd_session: Session, create_user_request: CreateUserRequest, prepared_transfer, transfer_request):
+    def test_bad_transfer_between_accounts(self, api_manager: ApiManager, db_session: Session, create_user_request: CreateUserRequest, prepared_transfer, transfer_request):
 
         api_manager.user_steps.deposit_transfer_invalid(create_user_request, transfer_request)
 
-        transaction_from_db = Transaction.get_transaction_by_id(bd_session, transfer_response.id)
-        assert transaction_from_db.amount == transfer_request.amount
-        assert transaction_from_db.id == transfer_response.id
-        account_from_db = AccountCrudDb.get_account_by_id(api_manager, transfer_response.id)
-        assert account_from_db.balance == transfer_request.amount
+        account_from_db = Account.get_account_by_id(db_session, prepared_transfer.account1.id)
+        assert account_from_db.balance == prepared_transfer.actual_balance_after_deposit
 
