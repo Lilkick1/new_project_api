@@ -1,231 +1,91 @@
 import time
 
 from playwright.sync_api import expect
+from src.main.ui.pages.catalog_page import CatalogPage
 
 
-
-def test_count_catalog(page):
-    page.goto("https://www.saucedemo.com/")
-
-    """Логин"""
-    page.get_by_placeholder("Username").fill("standard_user")
-    page.get_by_placeholder("Password").fill("secret_sauce")
-    page.locator("#login-button").click()
-
+def test_count_catalog(auth_page):
     """Проверка количества товаров"""
-    product = page.locator(".inventory_item")
-
-    assert product.count() == 6
-
+    catalog = CatalogPage(auth_page)
+    assert catalog.get_product_count() == 6
 
 
-def test_sorted_by_name(page):
-    page.goto("https://www.saucedemo.com/")
 
-    """Логин"""
-    page.get_by_placeholder("Username").fill("standard_user")
-    page.get_by_placeholder("Password").fill("secret_sauce")
-    page.locator("#login-button").click()
-
-    '''Ожидание видимости селектора'''
-    sort_selector = page.locator(".product_sort_container")
-    expect(sort_selector).to_be_visible()
+def test_sorted_by_name(auth_page):
+    catalog = CatalogPage(auth_page)
 
     """сортируем от a - z"""
-    sort_selector.select_option('az')
+    catalog.sort_item('az')
+    assert catalog.get_product_names() == sorted(catalog.get_product_names())
 
-    """получаем список названий товаров"""
-    names = page.locator(".inventory_item_name").all_text_contents()
-
-    """проверка, что список отсортирован по алфавиту"""
-    assert names == sorted(names)
-
-
-
-def test_sorted_by_reverse_name(page):
-    page.goto("https://www.saucedemo.com/")
-
-    """Логин"""
-    page.get_by_placeholder("Username").fill("standard_user")
-    page.get_by_placeholder("Password").fill("secret_sauce")
-    page.locator("#login-button").click()
-
-    '''Ожидание видимости селектора'''
-    sort_selector = page.locator(".product_sort_container")
-    expect(sort_selector).to_be_visible()
-
-    """сортируем от a - z"""
-    sort_selector.select_option('za')
-
-    """получаем список названий товаров"""
-    names = page.locator(".inventory_item_name").all_text_contents()
-
-    """проверка, что список отсортирован по алфавиту"""
-    assert names == sorted(names, reverse=True)
+    """сортируем от z - a"""
+    catalog.sort_item('za')
+    assert catalog.get_product_names() == sorted(catalog.get_product_names(), reverse=True)
 
 
 
-def test_sort_by_price(page):
-    page.goto("https://www.saucedemo.com/")
-
-    """Логин"""
-    page.get_by_placeholder("Username").fill("standard_user")
-    page.get_by_placeholder("Password").fill("secret_sauce")
-    page.locator("#login-button").click()
-
-    '''Ожидание видимости селектора'''
-    sort_selector = page.locator(".product_sort_container")
-    expect(sort_selector).to_be_visible()
-
+def test_sort_by_price(auth_page):
+    catalog = CatalogPage(auth_page)
     """сортируем по возрастанию цены"""
-    sort_selector.select_option('lohi')
-
-    """получаем список цен"""
-    prices_text = page.locator(".inventory_item_price").all_text_contents()
-
-    """преобразование в числа"""
-    price = [float(p.replace('$', '')) for p in prices_text]
-
-    """проверка сортировки"""
-    assert price == sorted(price)
+    catalog.sort_item('lohi')
+    assert catalog.get_product_names() == sorted(catalog.get_product_names())
 
     """сортируем по убыванию цены"""
-    sort_selector.select_option('hilo')
-
-    """получаем список цен"""
-    prices_text = page.locator(".inventory_item_price").all_text_contents()
-
-    """преобразование в числа"""
-    price = [float(p.replace('$', '')) for p in prices_text]
-
-    """проверка сортировки"""
-    assert price == sorted(price, reverse=True)
+    catalog.sort_item('hilo')
+    assert catalog.get_product_names() == sorted(catalog.get_product_names(), reverse=True)
 
 
 
-def test_add_to_cart_1(page):
-    page.goto("https://www.saucedemo.com/")
 
-    """Логин"""
-    page.get_by_placeholder("Username").fill("standard_user")
-    page.get_by_placeholder("Password").fill("secret_sauce")
-    page.locator("#login-button").click()
-
+def test_add_to_cart_1(auth_page):
+    catalog = CatalogPage(auth_page)
     """добавление товара в корзину"""
-    product_card = page.locator(".inventory_item", has_text="Sauce Labs Bike Light")
-    add_button = product_card.locator('button')
-    add_button.click()
-
-    """кнопка изменила название"""
-    expect(add_button).to_have_text("Remove")
-
-    """счетчик корзины"""
-    expect(page.locator(".shopping_cart_badge")).to_have_text("1")
+    button = catalog.add_to_cart('Sauce Labs Bike Light')
+    expect(button).to_have_text("Remove")
+    assert catalog.get_cart_count() == 1
 
 
 
-def test_add_to_cart_2(page):
-    page.goto("https://www.saucedemo.com/")
-
-    """Логин"""
-    page.get_by_placeholder("Username").fill("standard_user")
-    page.get_by_placeholder("Password").fill("secret_sauce")
-    page.locator("#login-button").click()
-
+def test_add_to_cart_2(auth_page):
+    catalog = CatalogPage(auth_page)
     """добавление товара в корзину"""
-    product_card = page.locator(".inventory_item", has_text="Sauce Labs Onesie")
-    add_button = product_card.locator('button')
-    add_button.click()
-
-    """кнопка изменила название"""
-    expect(add_button).to_have_text("Remove")
-
-    """счетчик корзины"""
-    expect(page.locator(".shopping_cart_badge")).to_have_text("1")
-
-    """проверки после удаления товара"""
-    add_button.click()
-
-    expect(add_button).to_have_text("Add to cart")
-    expect(page.locator(".shopping_cart_badge")).not_to_be_visible()
+    button = catalog.add_to_cart('Sauce Labs Onesie')
+    expect(button).to_have_text("Remove")
+    assert catalog.get_cart_count() == 1
 
 
 
-def test_product_details_onesie(page):
-    page.goto("https://www.saucedemo.com/")
+def test_add_and_remove_onesie(auth_page):
+    catalog = CatalogPage(auth_page)
+    catalog.add_to_cart('Sauce Labs Bike Light')
+    assert catalog.get_cart_count() == 1
 
-    """Логин"""
-    page.get_by_placeholder("Username").fill("standard_user")
-    page.get_by_placeholder("Password").fill("secret_sauce")
-    page.locator("#login-button").click()
-
-    """находим карточку товара"""
-    product_card = page.locator(".inventory_item", has_text="Sauce Labs Onesie")
-
-    """Сохраняем название и цену"""
-    product_name = product_card.locator("[data-test='inventory-item-name']").inner_text()
-    product_price = product_card.locator("[data-test='inventory-item-price']").inner_text()
-
-    """переходим на страницу товара"""
-    product_card.locator("[data-test='inventory-item-name']").click()
-
-    """Проверяем название и цену"""
-    detail_name = page.locator("[data-test='inventory-item-name']").inner_text()
-    detail_price = page.locator("[data-test='inventory-item-price']").inner_text()
-
-    assert detail_name == product_name, "Название не совпадает"
-    assert detail_price == product_price, "Цена не совпадает"
+    catalog.remove_from_cart('Sauce Labs Bike Light')
+    assert catalog.get_cart_count() == 0
 
 
 
-def test_product_details_Jacket(page):
-    page.goto("https://www.saucedemo.com/")
-
-    """Логин"""
-    page.get_by_placeholder("Username").fill("standard_user")
-    page.get_by_placeholder("Password").fill("secret_sauce")
-    page.locator("#login-button").click()
-
-    """находим карточку товара"""
-    product_card = page.locator(".inventory_item", has_text="Sauce Labs Fleece Jacket")
-
-    """Сохраняем название и цену"""
-    product_name = product_card.locator("[data-test='inventory-item-name']").inner_text()
-    product_price = product_card.locator("[data-test='inventory-item-price']").inner_text()
-
-    """переходим на страницу товара"""
-    product_card.locator("[data-test='inventory-item-name']").click()
-
-    """Проверяем название и цену"""
-    detail_name = page.locator("[data-test='inventory-item-name']").inner_text()
-    detail_price = page.locator("[data-test='inventory-item-price']").inner_text()
-
-    assert detail_name == product_name, "Название не совпадает"
-    assert detail_price == product_price, "Цена не совпадает"
+def test_product_details_onesie(auth_page):
+    catalog = CatalogPage(auth_page)
+    name, price, details_name, details_price = catalog.open_product_details('Sauce Labs Onesie')
+    assert name == details_name
+    assert price == details_price
 
 
 
-def test_remove_item_from_catalog(page):
-    page.goto("https://www.saucedemo.com/")
+def test_product_details_Jacket(auth_page):
+    catalog = CatalogPage(auth_page)
+    name, price, details_name, details_price = catalog.open_product_details('Sauce Labs Fleece Jacket')
+    assert name == details_name
+    assert price == details_price
 
-    """Логин"""
-    page.get_by_placeholder("Username").fill("standard_user")
-    page.get_by_placeholder("Password").fill("secret_sauce")
-    page.locator("#login-button").click()
 
-    """находим карточку товара"""
-    product_card = page.locator(".inventory_item", has_text="Test.allTheThings() T-Shirt (Red)")
 
-    """Добавляем товар"""
-    add_button = product_card.locator("button")
-    add_button.click()
+def test_remove_item_from_catalog(auth_page):
+    catalog = CatalogPage(auth_page)
+    remove_button = catalog.remove_from_cart('Test.allTheThings() T-shirt (Red)')
 
-    """кнопка ремув появилась"""
-    expect(add_button).to_have_text("Remove")
-
-    """удаляем товар"""
-    add_button.click()
-    expect(add_button).to_have_text("Add to cart")
+    expect(remove_button).to_have_text("Add to cart")
 
 
 

@@ -8,11 +8,15 @@ def playwright_instance():
     with sync_playwright() as playwright:
         yield playwright
 
+
+
 @pytest.fixture(scope="session")
 def browser(playwright_instance):
     browser = playwright_instance.chromium.launch(headless=False)
     yield browser
     browser.close()
+
+
 
 @pytest.fixture(scope="function")
 def page(browser) -> Page:
@@ -20,3 +24,16 @@ def page(browser) -> Page:
     page = context.new_page()
     yield page
     context.close()
+
+
+
+@pytest.fixture
+def auth_page(page):
+    page.goto("https://www.saucedemo.com/")
+    # accept_button = page.get_by_role("button", name="Принять все")
+    # if accept_button.is_visible(timeout=2000):
+    #     accept_button.click()
+    page.get_by_placeholder("Username").fill("standard_user")
+    page.get_by_placeholder("Password").fill("secret_sauce")
+    page.locator("#login-button").click()
+    return page
