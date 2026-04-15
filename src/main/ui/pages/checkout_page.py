@@ -2,7 +2,6 @@ from playwright.sync_api import Page, expect
 
 
 class CheckoutPage:
-    URL = 'https://www.saucedemo.com/checkout-step-one.html'
 
     """Локаторы"""
     def __init__(self, page: Page):
