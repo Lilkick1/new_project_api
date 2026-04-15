@@ -2,7 +2,6 @@ from playwright.sync_api import Page, expect
 
 
 class CartPage:
-    URL = 'https://www.saucedemo.com/cart.html'
 
     """Локаторы"""
     def __init__(self, page: Page):
@@ -27,7 +26,7 @@ class CartPage:
         card = self.item_cart.filter(has_text=product_name)
         expect(card).to_be_visible()
 
-    def expect_item_not_in_card(self, product_name: str):
+    def expect_item_not_in_cart(self, product_name: str):
         card = self.item_cart.filter(has_text=product_name)
         expect(card).not_to_be_visible()
 

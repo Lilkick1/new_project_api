@@ -30,9 +30,6 @@ def page(browser) -> Page:
 @pytest.fixture
 def auth_page(page):
     page.goto("https://www.saucedemo.com/")
-    # accept_button = page.get_by_role("button", name="Принять все")
-    # if accept_button.is_visible(timeout=2000):
-    #     accept_button.click()
     page.get_by_placeholder("Username").fill("standard_user")
     page.get_by_placeholder("Password").fill("secret_sauce")
     page.locator("#login-button").click()

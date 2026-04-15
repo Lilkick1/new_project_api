@@ -1,9 +1,8 @@
 from playwright.sync_api import Page
-
+from src.main.ui.utils.constants import Urls
 
 
 class LoginPage:
-    URL = "https://www.saucedemo.com/"
 
     """Лакаторы"""
     def __init__(self, page: Page):
@@ -15,7 +14,7 @@ class LoginPage:
 
     """Методы"""
     def open(self):
-        self.page.goto(self.URL)
+        self.page.goto(Urls.BASE)
 
     def login(self, username: str, password: str):
         self.user_name_input.fill(username)
