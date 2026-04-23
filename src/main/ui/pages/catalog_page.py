@@ -28,6 +28,7 @@ class CatalogPage:
 
     def logout(self):
         self.menu_button.click()
+        self.logout_link.wait_for(state="visible", timeout=5000)
         self.logout_link.click()
 
     def sort_item(self, option: str):
