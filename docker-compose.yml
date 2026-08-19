@@ -9,3 +9,63 @@ services:
 networks:
   bank-network:
     driver: bridge
+
+
+#services:
+#  # Бэкенд (ваш существующий)
+#  backend:
+#    image: clausmerderet/bank_api:latest
+#    ports:
+#      - "4111:4111"
+#    depends_on:
+#      postgres:
+#        condition: service_healthy
+#    environment:
+#      - DATABASE_URL=postgresql://bank_user:bank_pass@postgres:5432/bank_test
+#    networks:
+#      - bank-network
+#
+#  # PostgreSQL (добавляем)
+#  postgres:
+#    image: postgres:15-alpine
+#    container_name: bank-postgres
+#    environment:
+#      POSTGRES_DB: bank_test
+#      POSTGRES_USER: bank_user
+#      POSTGRES_PASSWORD: bank_pass
+#    ports:
+#      - "5432:5432"
+#    healthcheck:
+#      test: ["CMD-SHELL", "pg_isready -U bank_user -d bank_test"]
+#      interval: 5s
+#      timeout: 5s
+#      retries: 10
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
+#    networks:
+#      - bank-network
+#
+#  # Ваши тесты (добавляем)
+#  tests:
+#    build: .
+#    container_name: bank-tests
+#    depends_on:
+#      postgres:
+#        condition: service_healthy
+#      backend:
+#        condition: service_started
+#    environment:
+#      DATABASE_URL: postgresql://bank_user:bank_pass@postgres:5432/bank_test
+#      BACKEND_URL: http://backend:4111/api
+#    command: pytest -m api --alluredir=/app/reports/allure -v
+#    volumes:
+#      - ./allure-reports:/app/reports/allure
+#    networks:
+#      - bank-network
+#
+#networks:
+#  bank-network:
+#    driver: bridge
+#
+#volumes:
+#  postgres_data:

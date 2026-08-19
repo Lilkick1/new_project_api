@@ -1,100 +1,68 @@
-# def next_bigger(number: int) -> int:
-#     digits = list(str(number))
+# def read_csv_to_dicts(filename: str) -> list[dict]:
+#     result = []
+#     with open(filename, mode='r', encoding='utf-8') as f:
+#         lines = f.readlines()
 #
-#     # Поиск позиции (справа налево)
-#     pivot = -1
-#     for i in range(len(digits) - 2, -1, -1):
-#         if digits[i] < digits[i + 1]:
-#             pivot = i
-#             break
+#     headers = lines[0].strip().split(',')
+#     for line in lines[1:]:
 #
-#     if pivot == -1:
-#         return -1
+#         if not line.strip():
+#             continue
+#         values = line.strip().split(',')
 #
-#     # Поиск и замена
-#     for i in range(len(digits) - 1, pivot, -1):
-#         if digits[i] > digits[pivot]:
-#             digits[pivot], digits[i] = digits[i], digits[pivot]
-#             break
+#         row_dict = dict(zip(headers, values))
+#         result.append(row_dict)
 #
-#     # Разворот хвоста
-#     digits[pivot + 1:] = digits[pivot + 1:][::-1]
-#
-#     # Простое преобразование в число
-#     return int(''.join(digits))
-#
-# print(reverse_number(2017))
-
-# n = '1234567890'
-# for f in range(len(n) -2, -1, -1):
-#     print(n[f])
-
-# def scramble(s1, s2):
-#     list_s1 = list(s1)
-#     list_s2 = list(s2)
-#     result = False
-#     for f in s2:
-#         if f in list_s1:
-#             list_s1.remove(f)
-#             list_s2.remove(f)
-#     if len(list_s2) == 0:
-#         result = True
 #     return result
-
-# def duplicate_count(text):
-#     count = 0
-#     count_dict = {}
-#     text = text.lower()
-#     for word in text:
-#         count_dict[word] = count_dict.get(word, 0) + 1
 #
-#     for key, value in count_dict.items():
-#         if value >= 2:
-#             count += 1
-#     return count
 #
-# print(duplicate_count("hello"))
+# print(read_csv_to_dicts('C:\\Users\\vladu\\OneDrive\\Рабочий стол\\file.csv'))
+#
+#
 
 
-# def count_smileys(arr):
-#     simvol_for_smile = [[';',':'],['-', '~'], [')', 'D']]
-#     count = 0
-#
-#     for smile in arr:
-#         if len(smile) == 2:
-#                 if smile[0] in simvol_for_smile[0] and smile[1] in simvol_for_smile[2]:
-#                     count += 1
-#         elif len(smile) == 3:
-#                 if smile[0] in simvol_for_smile[0] and smile[1] in simvol_for_smile[1] and smile[2] in simvol_for_smile[2]:
-#                     count += 1
-#     return count
-#
-# def canMakeNote(text1: str, text2: str) -> bool:
-#     count_words = {}
-#     for word in text1:
-#         count_words[word] = count_words.get(word, 0) + 1
-#
-#     for word in text2:
-#         if count_words.get(word, 0) == 0:
-#             return False
-#         else:
-#             count_words[word] -= 1
-#
-#     return True
-#
-# print(canMakeNote('ewefygwehfwj', 'ewg'))
+class TestDataFactory:
+    total_generated = 0
+    def __init__(self, username: str = 'user', email: str = None, age: int = 18):
+        self.username = username
+        self.email = email
+        self.age = age
+        if email is None:
+            self.email = f'{self.username}@example.com'
+        TestDataFactory.total_generated += 1
+
+    def __str__(self):
+        return f"TestData(username='{self.username}', email='{self.email}', age={self.age})"
+
+    def __repr__(self):
+        return self.__str__()
+
+    @classmethod
+    def create_default_user(cls):
+        return cls(username="default_user", email="default@test.com", age=25)
+
+    @classmethod
+    def create_batch(cls, n: int) -> list:
+        user_list = []
+        i = 1
+        for f in range(n):
+            username = f'user_{i}'
+            email = f'user_{i}@test.com'
+            user = cls(username, email, 18)
+            user_list.append(user)
+            i += 1
+        return user_list
+
+print(TestDataFactory.total_generated)  # например, 0
+batch = TestDataFactory.create_batch(3)
+print(TestDataFactory.total_generated)  # должно стать 3
+default = TestDataFactory.create_default_user()
+print(TestDataFactory.total_generated)  # станет 4
+print(TestDataFactory.create_batch(3))
 
 
-# def fibanacha(n: int) -> int:
-#     a = 0
-#     b = 1
-#     for f in range(n):
-#         yield a
-#         a, b = b, a + b
-#
-# for num in fibanacha(9):
-#     print(num)
-#
+
+
 
 
 
